@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Your Training Plan</title>
+
+<!-- PWA manifest -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1a1a1a">
+
+<!-- iOS home screen support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Run Coach">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<!-- Favicons -->
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE9;
+    --border: #E2DED8;
+    --text: #1A1917;
+    --text2: #6B6760;
+    --text3: #9E9B96;
+    --run: #1A56A0;
+    --run-bg: #EBF3FC;
+    --run-border: #BDD6F5;
+    --strength: #5B47C5;
+    --strength-bg: #EEECFB;
+    --strength-border: #CEC9F4;
+    --mobility: #0D7A5A;
+    --mobility-bg: #E2F5EE;
+    --mobility-border: #9FE0CA;
+    --combo: #A05C0A;
+    --combo-bg: #FBF0E0;
+    --combo-border: #F5C97A;
+    --fast: #5F5E5A;
+    --fast-bg: #F1EFE8;
+    --fast-border: #D3D1C7;
+    --rest-bg: #F7F6F3;
+    --accent: #D4541E;
+    --font: 'Inter', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 2px;
+  }
+  .nav-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: all 0.12s;
+  }
+  .nav-tab:hover { background: var(--surface2); color: var(--text); }
+  .nav-tab.active { background: var(--text); color: #fff; }
+
+  /* LAYOUT */
+  main { max-width: 740px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* TODAY HERO */
+  .today-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin-bottom: 6px;
+  }
+  .hero-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .hero-sub { font-size: 14px; color: var(--text2); margin-bottom: 1.25rem; }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .badge-run { background: var(--run-bg); color: var(--run); border: 1px solid var(--run-border); }
+  .badge-strength { background: var(--strength-bg); color: var(--strength); border: 1px solid var(--strength-border); }
+  .badge-mobility { background: var(--mobility-bg); color: var(--mobility); border: 1px solid var(--mobility-border); }
+  .badge-combo { background: var(--combo-bg); color: var(--combo); border: 1px solid var(--combo-border); }
+  .badge-fast { background: var(--fast-bg); color: var(--fast); border: 1px solid var(--fast-border); }
+  .badge-rest { background: var(--rest-bg); color: var(--text3); border: 1px solid var(--border); }
+
+  /* WEEK STRIP */
+  .week-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 1.25rem;
+  }
+  .strip-day {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .strip-day:hover { border-color: var(--text3); }
+  .strip-day.active-day { border-color: var(--accent); border-width: 2px; }
+  .strip-day .sday-name { font-size: 10px; color: var(--text3); font-weight: 500; font-family: var(--mono); margin-bottom: 3px; }
+  .strip-day .sday-date { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .strip-day .sday-dot { width: 6px; height: 6px; border-radius: 50%; margin: 0 auto; }
+  .dot-run { background: var(--run); }
+  .dot-strength { background: var(--strength); }
+  .dot-mobility { background: var(--mobility); }
+  .dot-combo { background: var(--combo); }
+  .dot-fast { background: var(--fast); }
+  .dot-rest { background: var(--border); }
+  .strip-day.is-run { background: var(--run-bg); border-color: var(--run-border); }
+  .strip-day.is-strength { background: var(--strength-bg); border-color: var(--strength-border); }
+  .strip-day.is-mobility { background: var(--mobility-bg); border-color: var(--mobility-border); }
+  .strip-day.is-combo { background: var(--combo-bg); border-color: var(--combo-border); }
+  .strip-day.is-fast { background: var(--fast-bg); border-color: var(--fast-border); }
+
+  /* WORKOUT DETAIL */
+  .workout-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .workout-section-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ws-title { font-size: 14px; font-weight: 600; }
+  .ws-time { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .step-list { list-style: none; }
+  .step-item {
+    display: flex;
+    gap: 14px;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .step-item:last-child { border-bottom: none; }
+  .step-num {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    font-family: var(--mono);
+    min-width: 20px;
+    padding-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .step-detail { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .step-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    letter-spacing: 0.04em;
+  }
+  .tag-easy { background: var(--mobility-bg); color: var(--mobility); }
+  .tag-moderate { background: var(--combo-bg); color: var(--combo); }
+  .tag-hard { background: #FBEDE8; color: #8B2500; }
+
+  /* TIP CARD */
+  .tip-card {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin: 0 1.25rem 1rem;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    border-left: 3px solid var(--accent);
+  }
+  .tip-card strong { color: var(--text); font-weight: 500; }
+
+  /* REST / FAST CARD */
+  .rest-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .rest-icon { font-size: 32px; margin-bottom: 0.75rem; }
+  .rest-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .rest-sub { font-size: 14px; color: var(--text2); max-width: 320px; margin: 0 auto; }
+
+  /* PHASE CARD */
+  .phase-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+  .phase-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  /* SECTION HEADERS */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin: 1.75rem 0 0.75rem;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* TAB VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* PLAN OVERVIEW */
+  .phase-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .phase-block-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .phase-block-title { font-size: 15px; font-weight: 600; }
+  .phase-block-meta { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .phase-block-body { padding: 1rem 1.25rem; font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .phase-block-body strong { color: var(--text); font-weight: 500; }
+  .phase-week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-top: 0.75rem;
+  }
+  .pwc {
+    border-radius: 6px;
+    padding: 6px 2px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .pwc .pdn { font-size: 9px; color: var(--text3); font-family: var(--mono); font-weight: 500; margin-bottom: 3px; }
+  .pwc .pdt { font-size: 10px; font-weight: 500; line-height: 1.2; }
+  .pwc.p-run { background: var(--run-bg); border-color: var(--run-border); }
+  .pwc.p-run .pdt { color: var(--run); }
+  .pwc.p-strength { background: var(--strength-bg); border-color: var(--strength-border); }
+  .pwc.p-strength .pdt { color: var(--strength); }
+  .pwc.p-mobility { background: var(--mobility-bg); border-color: var(--mobility-border); }
+  .pwc.p-mobility .pdt { color: var(--mobility); }
+  .pwc.p-combo { background: var(--combo-bg); border-color: var(--combo-border); }
+  .pwc.p-combo .pdt { color: var(--combo); }
+  .pwc.p-fast { background: var(--fast-bg); border-color: var(--fast-border); }
+  .pwc.p-fast .pdt { color: var(--fast); }
+  .pwc.p-rest { background: var(--rest-bg); }
+  .pwc.p-rest .pdt { color: var(--text3); }
+
+  /* NUTRITION */
+  .nut-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .nut-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; }
+  .nut-label { font-size: 11px; color: var(--text3); font-family: var(--mono); font-weight: 500; margin-bottom: 4px; }
+  .nut-value { font-size: 18px; font-weight: 600; }
+  .nut-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .tip-list { list-style: none; }
+  .tip-list li {
+    font-size: 13px;
+    color: var(--text2);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .tip-list li:last-child { border-bottom: none; }
+  .tip-list li strong { color: var(--text); font-weight: 500; }
+  .tip-bullet { color: var(--accent); font-weight: 600; min-width: 12px; }
+
+  /* GEAR */
+  .gear-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .gear-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; }
+  .gear-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .gear-price { font-size: 12px; color: var(--accent); font-family: var(--mono); margin-bottom: 6px; }
+  .gear-note { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .gear-priority {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .priority-now { background: #FBEDE8; color: #8B2500; }
+  .priority-later { background: var(--surface2); color: var(--text3); }
+
+  /* PROGRESS BAR */
+  .progress-row { margin-bottom: 1rem; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .progress-label span:last-child { color: var(--text3); font-family: var(--mono); }
+  .progress-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.4s ease; }
+
+  /* FORM CUES */
+  .cue-list { list-style: none; }
+  .cue-item { padding: 0.75rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start; }
+  .cue-item:last-child { border-bottom: none; }
+  .cue-icon { font-size: 16px; min-width: 20px; }
+  .cue-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .cue-text strong { color: var(--text); font-weight: 500; }
+
+  /* PHASE TIMELINE */
+  .phase-timeline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .timeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .timeline-title { font-size: 14px; font-weight: 600; }
+  .timeline-sub { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .timeline-track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 0.75rem;
+  }
+  .tl-phase {
+    border-radius: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    cursor: default;
+    transition: all 0.15s;
+  }
+  .tl-phase.tl-active {
+    border-color: var(--accent);
+    border-width: 2px;
+    background: #FBF0E0;
+  }
+  .tl-phase.tl-done {
+    background: var(--surface2);
+    opacity: 0.7;
+  }
+  .tl-phase.tl-future { opacity: 0.5; }
+  .tl-label { font-size: 10px; font-family: var(--mono); font-weight: 500; color: var(--text3); margin-bottom: 3px; }
+  .tl-name { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .tl-dates { font-size: 10px; color: var(--text3); }
+  .tl-active .tl-label { color: var(--accent); }
+  .tl-active .tl-name { color: var(--combo); }
+  .tl-progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 0.75rem; }
+  .tl-progress-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.5s ease; }
+  .tl-progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 4px; }
+
+  @media (prefers-color-scheme: dark) {
+    .tl-phase.tl-active { background: #3D1F0A; border-color: var(--accent); }
+    .tl-active .tl-name { color: var(--combo-border); }
+  }
+
+    .nav-tabs { gap: 1px; }
+    .nav-tab { padding: 5px 8px; font-size: 12px; }
+    .nut-grid, .gear-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 18px; }
+  }
+
+  /* WORKOUT GUIDE TABS */
+  .guide-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .guide-hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin-bottom: 6px;
+  }
+  .guide-hero-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; line-height: 1.2; }
+  .guide-hero-sub { font-size: 14px; color: var(--text2); margin-bottom: 1rem; }
+  .guide-hero-meta {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0.75rem;
+  }
+  .guide-meta-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 500; padding: 4px 10px;
+    border-radius: 20px; border: 1px solid var(--border);
+    color: var(--text2); background: var(--surface2);
+  }
+
+  /* EXERCISE CARDS */
+  .exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .ex-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .ex-header-left { display: flex; align-items: center; gap: 12px; }
+  .ex-number {
+    font-size: 11px; font-weight: 500; color: var(--text3);
+    font-family: var(--mono); min-width: 22px;
+  }
+  .ex-name { font-size: 15px; font-weight: 600; }
+  .ex-sets { font-size: 12px; color: var(--text3); font-family: var(--mono); white-space: nowrap; }
+  .ex-body { padding: 1rem 1.25rem; }
+  .ex-how-title {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--text3); font-family: var(--mono);
+    margin-bottom: 8px;
+  }
+  .ex-steps { list-style: none; margin-bottom: 1rem; }
+  .ex-steps li {
+    font-size: 13px; color: var(--text2); padding: 5px 0;
+    border-bottom: 1px solid var(--border); line-height: 1.5;
+    display: flex; gap: 10px;
+  }
+  .ex-steps li:last-child { border-bottom: none; }
+  .ex-step-num { color: var(--accent); font-weight: 600; font-size: 12px; min-width: 16px; font-family: var(--mono); }
+  .ex-cue {
+    background: var(--surface2);
+    border-left: 3px solid var(--strength);
+    border-radius: 0 8px 8px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+  .ex-cue.cue-run { border-left-color: var(--run); }
+  .ex-cue.cue-mobility { border-left-color: var(--mobility); }
+  .ex-video-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; color: var(--run);
+    text-decoration: none; padding: 5px 10px;
+    background: var(--run-bg); border: 1px solid var(--run-border);
+    border-radius: 6px; transition: all 0.12s;
+    margin-top: 4px;
+  }
+  .ex-video-link:hover { background: var(--run-border); }
+  .ex-video-link svg { flex-shrink: 0; }
+
+  /* SETS/ROUNDS INFO BAR */
+  .guide-rounds-bar {
+    background: var(--strength-bg);
+    border: 1px solid var(--strength-border);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--strength);
+  }
+  .guide-rounds-bar.bar-mobility {
+    background: var(--mobility-bg);
+    border-color: var(--mobility-border);
+    color: var(--mobility);
+  }
+  .guide-rounds-bar strong { font-weight: 600; }
+
+  /* SECTION TABS within guide */
+  .guide-section-tabs {
+    display: flex; gap: 4px; margin-bottom: 1.25rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px;
+  }
+  .guide-section-tab {
+    flex: 1; padding: 7px 8px; font-size: 12px; font-weight: 500;
+    border: none; background: none; border-radius: 7px; cursor: pointer;
+    color: var(--text2); transition: all 0.12s; text-align: center;
+  }
+  .guide-section-tab:hover { background: var(--surface2); color: var(--text); }
+  .guide-section-tab.active { background: var(--text); color: #fff; }
+
+  .guide-section { display: none; }
+  .guide-section.active { display: block; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Coach Plan</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('today')">Today</button>
+    <button class="nav-tab" onclick="showView('plan')">Plan</button>
+    <button class="nav-tab" onclick="showView('str-a')">Str&nbsp;A</button>
+    <button class="nav-tab" onclick="showView('str-b')">Str&nbsp;B</button>
+    <button class="nav-tab" onclick="showView('mobility')">Mobility</button>
+    <button class="nav-tab" onclick="showView('stretch')">Pre/Post&nbsp;Run</button>
+    <button class="nav-tab" onclick="showView('nutrition')">Nutrition</button>
+    <button class="nav-tab" onclick="showView('gear')">Gear</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ===================== TODAY VIEW ===================== -->
+  <div class="view active" id="view-today">
+    <div id="today-content"></div>
+  </div>
+
+  <!-- ===================== PLAN VIEW ===================== -->
+  <div class="view" id="view-plan">
+    <div id="plan-header"></div>
+
+    <div class="section-label">Launch week — June 10–15</div>
+    <div class="phase-block">
+      <div class="phase-block-header">
+        <div class="phase-block-title">Partial start week</div>
+        <div class="phase-block-meta">Jun 10–15</div>
+      </div>
+      <div class="phase-block-body">
+        Today is your fast and rest day. Three introductory workouts this week to learn the movements before full Phase 1 begins Monday June 16. <strong>Goal: show up, not perform.</strong>
+        <div class="phase-week-grid">
+          <div class="pwc p-fast"><div class="pdn">WED</div><div class="pdt">Fast + rest</div></div>
+          <div class="pwc p-run"><div class="pdn">THU</div><div class="pdt">First run</div></div>
+          <div class="pwc p-rest"><div class="pdn">FRI</div><div class="pdt">Rest</div></div>
+          <div class="pwc p-strength"><div class="pdn">SAT</div><div class="pdt">Strength A</div></div>
+          <div class="pwc p-mobility"><div class="pdn">SUN</div><div class="pdt">Mobility</div></div>
+          <div class="pwc p-rest"><div class="pdn">MON</div><div class="pdt">Rest</div></div>
+          <div class="pwc p-rest"><div class="pdn">TUE</div><div class="pdt">Rest</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Phase 1 — Foundation · Weeks 1–6 (Jun 16 – Jul 27)</div>
+    <div class="phase-block">
+      <div class="phase-block-header">
+        <div class="phase-block-title">Build the habit</div>
+        <div class="phase-block-meta">4 workouts/week</div>
+      </div>
+      <div class="phase-block-body">
+        Short easy runs, two strength circuits, one long run Saturday with full stretch. Wednesday is always your fast and rest day. <strong>Success = 5 of 6 weeks completed, not how fast you ran.</strong>
+        <div class="phase-week-grid">
+          <div class="pwc p-run"><div class="pdn">MON</div><div class="pdt">Easy run</div></div>
+          <div class="pwc p-strength"><div class="pdn">TUE</div><div class="pdt">Strength A</div></div>
+          <div class="pwc p-fast"><div class="pdn">WED</div><div class="pdt">Fast + rest</div></div>
+          <div class="pwc p-run"><div class="pdn">THU</div><div class="pdt">Easy run</div></div>
+          <div class="pwc p-strength"><div class="pdn">FRI</div><div class="pdt">Strength B</div></div>
+          <div class="pwc p-combo"><div class="pdn">SAT</div><div class="pdt">Long run + stretch</div></div>
+          <div class="pwc p-rest"><div class="pdn">SUN</div><div class="pdt">Rest</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Phase 2 — Build · Weeks 7–14 (Jul 28 – Sep 21)</div>
+    <div class="phase-block">
+      <div class="phase-block-header">
+        <div class="phase-block-title">Add intensity</div>
+        <div class="phase-block-meta">5 workouts/week</div>
+      </div>
+      <div class="phase-block-body">
+        Tempo runs introduced on Wednesday (after fast ends at 5:30pm, or skip to Thursday). Long run extends to 4–5 miles. Strength gets harder with single-leg progressions and bands. <strong>Around week 9–10 you'll start to actually enjoy running.</strong>
+        <div class="phase-week-grid">
+          <div class="pwc p-run"><div class="pdn">MON</div><div class="pdt">Easy run</div></div>
+          <div class="pwc p-strength"><div class="pdn">TUE</div><div class="pdt">Strength A</div></div>
+          <div class="pwc p-fast"><div class="pdn">WED</div><div class="pdt">Fast + rest</div></div>
+          <div class="pwc p-run"><div class="pdn">THU</div><div class="pdt">Tempo run</div></div>
+          <div class="pwc p-strength"><div class="pdn">FRI</div><div class="pdt">Strength B</div></div>
+          <div class="pwc p-combo"><div class="pdn">SAT</div><div class="pdt">Long run + stretch</div></div>
+          <div class="pwc p-mobility"><div class="pdn">SUN</div><div class="pdt">Mobility</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Phase 3 — Maintenance · Weeks 15–24 (Sep 22 – Dec 7)</div>
+    <div class="phase-block">
+      <div class="phase-block-header">
+        <div class="phase-block-title">Your forever baseline</div>
+        <div class="phase-block-meta">5 workouts/week</div>
+      </div>
+      <div class="phase-block-body">
+        Trail runs enter the rotation 2x/month on Saturdays. Long run reaches 5–7 miles. At this point you could race a 5K comfortably and reach a half marathon with 8–10 more weeks of build. <strong>This schedule should feel easy and normal, not like sacrifice.</strong>
+        <div class="phase-week-grid">
+          <div class="pwc p-run"><div class="pdn">MON</div><div class="pdt">Easy run</div></div>
+          <div class="pwc p-strength"><div class="pdn">TUE</div><div class="pdt">Strength A</div></div>
+          <div class="pwc p-fast"><div class="pdn">WED</div><div class="pdt">Fast + rest</div></div>
+          <div class="pwc p-run"><div class="pdn">THU</div><div class="pdt">Tempo / intervals</div></div>
+          <div class="pwc p-strength"><div class="pdn">FRI</div><div class="pdt">Strength B</div></div>
+          <div class="pwc p-combo"><div class="pdn">SAT</div><div class="pdt">Trail / long run</div></div>
+          <div class="pwc p-mobility"><div class="pdn">SUN</div><div class="pdt">Mobility</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Run form — cues for tall runners</div>
+    <div class="phase-block">
+      <ul class="cue-list" style="padding: 0 1.25rem;">
+        <li class="cue-item"><span class="cue-icon">👟</span><span class="cue-text"><strong>Cadence ~170 spm.</strong> Tall runners overstride — shorter, quicker steps reduce injury risk.</span></li>
+        <li class="cue-item"><span class="cue-icon">↗</span><span class="cue-text"><strong>Forward lean from the ankles,</strong> not the waist. Think "falling forward" gently.</span></li>
+        <li class="cue-item"><span class="cue-icon">💪</span><span class="cue-text"><strong>Arms at 90°,</strong> hands relaxed, driving front-to-back not across your body.</span></li>
+        <li class="cue-item"><span class="cue-icon">🦶</span><span class="cue-text"><strong>Mid-foot strike,</strong> not heel. Your rolling hills naturally encourage this on downhills.</span></li>
+        <li class="cue-item"><span class="cue-icon">👀</span><span class="cue-text"><strong>Eyes 20–30 feet ahead,</strong> not down at your feet.</span></li>
+      </ul>
+    </div>
+
+    <div class="section-label">Missed workouts policy</div>
+    <div class="phase-block">
+      <ul class="tip-list" style="padding: 0 1.25rem;">
+        <li><span class="tip-bullet">—</span><div><strong>Miss one workout:</strong> Skip it. Don't make it up. Move on.</div></li>
+        <li><span class="tip-bullet">—</span><div><strong>Miss a full week:</strong> Return at 80% volume. Don't jump back in at full load.</div></li>
+        <li><span class="tip-bullet">—</span><div><strong>Miss 2+ weeks:</strong> Drop back one full phase and rebuild. No shame — this prevents injury.</div></li>
+        <li><span class="tip-bullet">—</span><div><strong>Feeling sick:</strong> Rest until well. Running sick delays recovery and increases injury risk.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== NUTRITION VIEW ===================== -->
+  <div class="view" id="view-nutrition">
+    <div class="section-label">Your targets</div>
+    <div class="nut-grid">
+      <div class="nut-card"><div class="nut-label">Daily calories</div><div class="nut-value">2,800–3,200</div><div class="nut-sub">High metabolism + activity</div></div>
+      <div class="nut-card"><div class="nut-label">Daily protein</div><div class="nut-value">160–190g</div><div class="nut-sub">~0.8g per lb bodyweight</div></div>
+      <div class="nut-card"><div class="nut-label">Carb strategy</div><div class="nut-value">Time them</div><div class="nut-sub">Don't cut — fuel runs with them</div></div>
+      <div class="nut-card"><div class="nut-label">Fat loss approach</div><div class="nut-value">Recompose</div><div class="nut-sub">Swap quality, don't starve</div></div>
+    </div>
+
+    <div class="section-label">Meal timing</div>
+    <div class="phase-block">
+      <ul class="tip-list" style="padding: 0 1.25rem;">
+        <li><span class="tip-bullet">☀</span><div><strong>Morning workouts:</strong> Banana or small handful of dates is enough. Don't force a big breakfast before a short run.</div></li>
+        <li><span class="tip-bullet">☀</span><div><strong>Midday workouts:</strong> Light lunch (eggs + toast, protein wrap). Run 60–90 min after eating.</div></li>
+        <li><span class="tip-bullet">🌙</span><div><strong>Evening workouts:</strong> Small snack (fruit + nuts) if dinner is 2+ hours away. Run, then eat your large dinner — optimal for recomposition.</div></li>
+        <li><span class="tip-bullet">⚡</span><div><strong>Post-run within 30–45 min:</strong> Get protein in — milk, Greek yogurt, or eggs. Your large dinner counts if it's within an hour.</div></li>
+        <li><span class="tip-bullet">✦</span><div><strong>Fast day (Wed):</strong> Rest only. No running or strength work in a 24-hour fasted state.</div></li>
+      </ul>
+    </div>
+
+    <div class="section-label">Recomposition strategy</div>
+    <div class="phase-block">
+      <ul class="tip-list" style="padding: 0 1.25rem;">
+        <li><span class="tip-bullet">1</span><div><strong>Protein first at dinner.</strong> Start with your protein source before carbs. Promotes muscle retention over fat storage.</div></li>
+        <li><span class="tip-bullet">2</span><div><strong>Carbs on run days.</strong> Eat your highest-carb meals on workout days. Shift toward protein + veg on rest days.</div></li>
+        <li><span class="tip-bullet">3</span><div><strong>Vegetables as volume.</strong> Use them aggressively at dinner to maintain food volume while improving calorie quality. Biggest lever for abdominal fat loss.</div></li>
+        <li><span class="tip-bullet">4</span><div><strong>Protein breakfast.</strong> Eggs, Greek yogurt, or cottage cheese. Curbs unnecessary hunger without reducing dinner appetite.</div></li>
+        <li><span class="tip-bullet">5</span><div><strong>Alcohol (0–3 drinks/week) is fine.</strong> Just avoid within 2 hours of a run or before a morning workout day.</div></li>
+      </ul>
+    </div>
+
+    <div class="section-label">Foods to prioritize</div>
+    <div class="phase-block">
+      <ul class="tip-list" style="padding: 0 1.25rem;">
+        <li><span class="tip-bullet">→</span><div><strong>Eggs</strong> — complete protein, cheap, highly satiating. Great at breakfast or post-run.</div></li>
+        <li><span class="tip-bullet">→</span><div><strong>Greek yogurt / cottage cheese</strong> — high protein, easy snack or breakfast upgrade.</div></li>
+        <li><span class="tip-bullet">→</span><div><strong>Salmon / fatty fish 2x/week</strong> — omega-3s reduce running inflammation. Your joints will thank you.</div></li>
+        <li><span class="tip-bullet">→</span><div><strong>Sweet potato & oats</strong> — quality carbs that fuel runs without blood sugar spikes.</div></li>
+        <li><span class="tip-bullet">→</span><div><strong>Leafy greens & cruciferous veg</strong> — high volume, low calorie, dense micronutrients.</div></li>
+        <li><span class="tip-bullet">→</span><div><strong>Nuts (already doing this)</strong> — keep them as your snack. Don't over-consume — calorie dense.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== GEAR VIEW ===================== -->
+  <div class="view" id="view-gear">
+    <div class="section-label">Buy now — Phase 1 essentials (~$80–100)</div>
+    <div class="gear-grid">
+      <div class="gear-card">
+        <div class="gear-priority priority-now">Buy now</div>
+        <div class="gear-name">Pull-up bar</div>
+        <div class="gear-price">$25–40</div>
+        <div class="gear-note">Doorframe mount. Unlocks all of Strength B. Also use for passive hanging to decompress spine after desk days.</div>
+      </div>
+      <div class="gear-card">
+        <div class="gear-priority priority-now">Buy now</div>
+        <div class="gear-name">Foam roller</div>
+        <div class="gear-price">$20–35</div>
+        <div class="gear-note">Hard density. Use 3x/week post-run on IT band, quads, calves, and thoracic spine. Directly addresses foot twinges.</div>
+      </div>
+      <div class="gear-card">
+        <div class="gear-priority priority-now">Buy now</div>
+        <div class="gear-name">Resistance bands (set)</div>
+        <div class="gear-price">$15–25</div>
+        <div class="gear-note">Light/medium/heavy. Adds progression to glute bridges, clamshells, and rotator cuff maintenance for your shoulder.</div>
+      </div>
+      <div class="gear-card">
+        <div class="gear-priority priority-now">Already have ✓</div>
+        <div class="gear-name">Running shoes</div>
+        <div class="gear-price">In good shape</div>
+        <div class="gear-note">Good to go. When they hit ~400 miles, go to a running store for a gait analysis before replacing.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Add in months 2–3</div>
+    <div class="gear-grid">
+      <div class="gear-card">
+        <div class="gear-priority priority-later">Add later</div>
+        <div class="gear-name">Lacrosse ball</div>
+        <div class="gear-price">$5–8</div>
+        <div class="gear-note">Targeted foot massage for plantar fascia. Roll under arch 2 min each foot before morning runs.</div>
+      </div>
+      <div class="gear-card">
+        <div class="gear-priority priority-later">Add later</div>
+        <div class="gear-name">Running watch</div>
+        <div class="gear-price">$150–250</div>
+        <div class="gear-note">Garmin Forerunner 165 or Coros Pace 3. Tracks pace, heart rate, and effort zones. Helps you actually stay easy on easy days.</div>
+      </div>
+      <div class="gear-card">
+        <div class="gear-priority priority-later">Phase 3 only</div>
+        <div class="gear-name">Trail shoes</div>
+        <div class="gear-price">$100–130</div>
+        <div class="gear-note">When trail running starts in Phase 3. Hoka Speedgoat or Brooks Cascadia. Don't trail run in road shoes on wet surfaces.</div>
+      </div>
+      <div class="gear-card">
+        <div class="gear-priority priority-later">Add later</div>
+        <div class="gear-name">Yoga mat</div>
+        <div class="gear-price">$20–30</div>
+        <div class="gear-note">For floor-based mobility and strength work. Makes pigeon pose, dead bugs, and glute bridges more comfortable.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Treadmill guidance</div>
+    <div class="phase-block">
+      <ul class="tip-list" style="padding: 0 1.25rem;">
+        <li><span class="tip-bullet">✓</span><div><strong>Use treadmill when:</strong> weather is bad, schedule is tight, or you want to lock in a specific easy pace. Always set incline to at least 1%.</div></li>
+        <li><span class="tip-bullet">✓</span><div><strong>Run outdoors when:</strong> weather permits — especially Saturday long runs. Your rolling hills build real aerobic strength a flat treadmill won't replicate.</div></li>
+        <li><span class="tip-bullet">✗</span><div><strong>Avoid treadmill for:</strong> tempo runs where possible. Outdoor tempo on your hills is far more effective and mentally engaging.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== STRENGTH A VIEW ===================== -->
+  <div class="view" id="view-str-a">
+    <div class="guide-hero">
+      <div class="guide-hero-eyebrow">Workout guide</div>
+      <div class="guide-hero-title">💪 Strength A</div>
+      <div class="guide-hero-sub">Lower body & core — do this every Tuesday</div>
+      <div class="guide-hero-meta">
+        <span class="guide-meta-pill">⏱ 30 min</span>
+        <span class="guide-meta-pill">🔁 3 rounds</span>
+        <span class="guide-meta-pill">📍 No equipment needed to start</span>
+      </div>
+    </div>
+
+    <div class="guide-rounds-bar">
+      <strong>Structure:</strong>&nbsp; 3 rounds · 30–45 sec rest between exercises · 90 sec rest between rounds
+    </div>
+
+    <!-- Exercise 1 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">01</span>
+          <span class="ex-name">Bodyweight Squat</span>
+        </div>
+        <span class="ex-sets">15 reps</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Stand feet shoulder-width apart, toes slightly out. Arms forward or crossed at chest.</li>
+          <li><span class="ex-step-num">2.</span>Push your hips back and bend knees, lowering over 2 seconds until thighs are parallel to floor.</li>
+          <li><span class="ex-step-num">3.</span>Drive through your heels to stand. Squeeze glutes at the top.</li>
+        </ol>
+        <div class="ex-cue">💡 <strong>Form cue:</strong> Chest up, knees tracking over toes. Don't let your heels lift — if they do, elevate them on a folded towel until ankle mobility improves.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=bodyweight+squat+form" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">02</span>
+          <span class="ex-name">Reverse Lunge</span>
+        </div>
+        <span class="ex-sets">10 reps each leg</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Stand tall, hands on hips or at sides.</li>
+          <li><span class="ex-step-num">2.</span>Step one foot straight back, lowering your back knee toward the floor. Front shin stays vertical.</li>
+          <li><span class="ex-step-num">3.</span>Drive through your front heel to return to standing. Alternate legs.</li>
+        </ol>
+        <div class="ex-cue">💡 <strong>Why reverse not forward:</strong> Reverse lunges are easier on the knees and better for hip extension — important for runners.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=reverse+lunge+form+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">03</span>
+          <span class="ex-name">Glute Bridge</span>
+        </div>
+        <span class="ex-sets">15 reps · 2-sec hold at top</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Lie on your back, knees bent, feet flat on the floor hip-width apart.</li>
+          <li><span class="ex-step-num">2.</span>Drive through your heels, squeeze your glutes, and lift your hips until your body forms a straight line from knees to shoulders.</li>
+          <li><span class="ex-step-num">3.</span>Hold 2 seconds at the top, then lower slowly.</li>
+        </ol>
+        <div class="ex-cue">💡 <strong>Phase 2 progression:</strong> Move to single-leg glute bridge — lift one foot, same motion. Adds hip stability critical for running.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=glute+bridge+exercise+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 4 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">04</span>
+          <span class="ex-name">Dead Bug</span>
+        </div>
+        <span class="ex-sets">10 reps each side · slow</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Lie on your back. Raise arms straight up toward ceiling, knees bent to 90° in the air (tabletop position).</li>
+          <li><span class="ex-step-num">2.</span>Slowly lower your right arm overhead and left leg toward the floor simultaneously, keeping your lower back pressed flat.</li>
+          <li><span class="ex-step-num">3.</span>Return to start. Alternate sides. Never let your lower back arch off the floor.</li>
+        </ol>
+        <div class="ex-cue">💡 <strong>Key:</strong> The anti-extension core demand is what makes this hard. If your back arches, you've gone too far — shorten the range.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=dead+bug+exercise+core+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 5 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">05</span>
+          <span class="ex-name">Plank</span>
+        </div>
+        <span class="ex-sets">30–60 sec hold</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Forearms on the floor, elbows under shoulders. Either toes or knees on the floor.</li>
+          <li><span class="ex-step-num">2.</span>Body forms a straight line from head to heels. Squeeze your glutes and brace your abs.</li>
+          <li><span class="ex-step-num">3.</span>Hold without letting hips sag or pike up. Start with 30 sec and build to 60 sec over 6 weeks.</li>
+        </ol>
+        <div class="ex-cue">💡 At 6'4" your leverage is different — don't let your hips sag in the middle. Think "pushing the floor away" with your forearms.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=plank+form+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 6 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">06</span>
+          <span class="ex-name">Calf Raise</span>
+        </div>
+        <span class="ex-sets">20 reps · slow · barefoot</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Stand on the edge of a step or flat floor, barefoot. Hands lightly on a wall for balance.</li>
+          <li><span class="ex-step-num">2.</span>Rise up onto your toes slowly (2 sec up), hold briefly at the top.</li>
+          <li><span class="ex-step-num">3.</span>Lower slowly (3 sec down). Full range of motion matters more than speed.</li>
+        </ol>
+        <div class="ex-cue">💡 <strong>Critical for your foot twinges.</strong> Eccentric loading (the slow lowering) directly strengthens the Achilles and plantar fascia. Do these barefoot, always.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=calf+raise+exercise+barefoot+eccentric" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <div class="tip-card" style="margin: 0 0 1.5rem;">
+      <strong>Coach note:</strong> These 6 exercises will feel easy at first. They're supposed to — you're building connective tissue, not just muscle. Around week 3 you'll start feeling your glutes actually fire when you run. That's the adaptation happening.
+    </div>
+  </div>
+
+  <!-- ===================== STRENGTH B VIEW ===================== -->
+  <div class="view" id="view-str-b">
+    <div class="guide-hero">
+      <div class="guide-hero-eyebrow">Workout guide</div>
+      <div class="guide-hero-title">💪 Strength B</div>
+      <div class="guide-hero-sub">Upper body & push/pull — do this every Friday</div>
+      <div class="guide-hero-meta">
+        <span class="guide-meta-pill">⏱ 30 min</span>
+        <span class="guide-meta-pill">🔁 3 rounds</span>
+        <span class="guide-meta-pill">📍 Needs pull-up bar</span>
+      </div>
+    </div>
+
+    <div class="guide-rounds-bar">
+      <strong>Structure:</strong>&nbsp; 3 rounds · 30–45 sec rest between exercises · 90 sec rest between rounds
+    </div>
+
+    <!-- Exercise 1 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">01</span>
+          <span class="ex-name">Push-Up</span>
+        </div>
+        <span class="ex-sets">10–15 reps</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Hands slightly wider than shoulder-width, body in a straight line from head to heels.</li>
+          <li><span class="ex-step-num">2.</span>Lower your chest to the floor with control (2 sec down). Elbows at about 45° from your body — not flared wide.</li>
+          <li><span class="ex-step-num">3.</span>Press back up fully. Don't let your hips sag.</li>
+        </ol>
+        <div class="ex-cue">💡 <strong>If full push-ups are hard:</strong> Elevate hands on a counter or bench. Never do knee push-ups — they eliminate core demand. Elevated hands keep the full movement pattern.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=perfect+push+up+form+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">02</span>
+          <span class="ex-name">Pull-Up / Negative Pull-Up</span>
+        </div>
+        <span class="ex-sets">5–8 reps</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Hang from the bar, hands shoulder-width apart, palms facing away (overhand grip).</li>
+          <li><span class="ex-step-num">2.</span>Squeeze your shoulder blades together, then pull your chin above the bar.</li>
+          <li><span class="ex-step-num">3.</span>Lower slowly (3 sec) back to full hang. Don't kip or swing.</li>
+        </ol>
+        <div class="ex-cue">💡 <strong>If you can't do pull-ups yet:</strong> Do negatives — jump or step to the top position, then lower yourself over 5 seconds. This is how you build to full pull-ups. Your swimming background means this will come back fast.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=pull+up+negative+beginner+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">03</span>
+          <span class="ex-name">Pike Push-Up</span>
+        </div>
+        <span class="ex-sets">8 reps</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Start in a push-up position. Walk your feet forward and pike your hips high so your body forms an inverted V.</li>
+          <li><span class="ex-step-num">2.</span>Bend your elbows and lower the top of your head toward the floor between your hands.</li>
+          <li><span class="ex-step-num">3.</span>Press back up to the V position. Keep your hips high throughout.</li>
+        </ol>
+        <div class="ex-cue">💡 Targets the front deltoids and triceps with a shoulder-press movement pattern — no equipment needed. Builds shoulder stability important for your rotator cuff history.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=pike+push+up+tutorial+form" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 4 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">04</span>
+          <span class="ex-name">Superman Hold</span>
+        </div>
+        <span class="ex-sets">10 reps · 2-sec hold</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Lie face down, arms extended overhead, legs straight.</li>
+          <li><span class="ex-step-num">2.</span>Simultaneously lift your arms, chest, and legs off the floor by squeezing your glutes and back muscles.</li>
+          <li><span class="ex-step-num">3.</span>Hold 2 seconds at the top, then lower with control. Don't jerk or bounce.</li>
+        </ol>
+        <div class="ex-cue">💡 This is your posterior chain strengthener — erector spinae, glutes, upper back. Critical for desk workers and runners. Directly addresses the lower back fatigue you may feel in early weeks.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=superman+hold+exercise+lower+back" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 5 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">05</span>
+          <span class="ex-name">Chair Dip</span>
+        </div>
+        <span class="ex-sets">10 reps</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Sit on the edge of a sturdy chair, hands gripping the front edge, fingers forward. Slide your hips off the seat.</li>
+          <li><span class="ex-step-num">2.</span>Lower yourself by bending your elbows until they reach 90°. Keep your back close to the chair.</li>
+          <li><span class="ex-step-num">3.</span>Press back up to straight arms. Don't shrug your shoulders — keep them down and back.</li>
+        </ol>
+        <div class="ex-cue">💡 Use a sturdy wooden chair or a low bench. The closer your feet are to you, the easier it is. Extend legs straight for more challenge.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=chair+dip+tricep+exercise+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercise 6 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">06</span>
+          <span class="ex-name">Mountain Climbers</span>
+        </div>
+        <span class="ex-sets">20 reps (10 each side)</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Start in a high push-up position. Wrists under shoulders, body in a plank.</li>
+          <li><span class="ex-step-num">2.</span>Drive your right knee toward your chest, then return it and switch to the left. Alternate at a controlled pace.</li>
+          <li><span class="ex-step-num">3.</span>Keep hips level — don't let them bounce up and down. Core stays tight throughout.</li>
+        </ol>
+        <div class="ex-cue">💡 This finishes the workout with your heart rate elevated. Controlled tempo (not a sprint) keeps core engagement high. Think of it as running in place with full core involvement.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=mountain+climbers+exercise+form" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <div class="tip-card" style="margin: 0 0 1.5rem;">
+      <strong>Coach note:</strong> Strength B complements your running — upper body stability makes you a significantly more efficient runner. The pull-up work will come back fast given your swimming background. Don't be surprised if you're stronger than you think on day one.
+    </div>
+  </div>
+
+  <!-- ===================== MOBILITY VIEW ===================== -->
+  <div class="view" id="view-mobility">
+    <div class="guide-hero">
+      <div class="guide-hero-eyebrow">Workout guide</div>
+      <div class="guide-hero-title">🧘 Mobility Routine</div>
+      <div class="guide-hero-sub">Full-body flexibility & joint health — do this after long runs and on Sunday</div>
+      <div class="guide-hero-meta">
+        <span class="guide-meta-pill">⏱ 15–20 min</span>
+        <span class="guide-meta-pill">📍 Barefoot when possible</span>
+        <span class="guide-meta-pill">🔁 Do in order</span>
+      </div>
+    </div>
+
+    <div class="guide-rounds-bar bar-mobility">
+      <strong>Do this after runs or as a standalone session.</strong>&nbsp; No rounds — just flow through each movement once in order. Barefoot on a mat or carpet.
+    </div>
+
+    <!-- Move 1 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">01</span>
+          <span class="ex-name">Toe Curls & Arch Raises</span>
+        </div>
+        <span class="ex-sets">2 × 15 reps</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Stand barefoot on a hard floor (not carpet). Spread your toes wide, then curl them under like you're gripping the floor.</li>
+          <li><span class="ex-step-num">2.</span>For arch raises: keep toes on the floor, try to lift the arch of your foot without curling your toes. Hold 2 sec at the top.</li>
+          <li><span class="ex-step-num">3.</span>Progress: try picking up a small towel or marbles with your toes.</li>
+        </ol>
+        <div class="ex-cue cue-mobility">💡 <strong>This is the most direct fix for your foot twinges.</strong> These tiny muscles are almost never trained but do enormous work when running. 2 weeks of this consistently and you'll feel a difference.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=foot+arch+exercises+intrinsic+muscles" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Move 2 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">02</span>
+          <span class="ex-name">Ankle Circles & Alphabet</span>
+        </div>
+        <span class="ex-sets">30 sec each foot</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Sit or stand on one foot. Lift the other foot off the floor.</li>
+          <li><span class="ex-step-num">2.</span>Draw large, slow circles with your ankle — 10 clockwise, 10 counterclockwise.</li>
+          <li><span class="ex-step-num">3.</span>Then trace the letters A through Z with your big toe. Go slowly and make the letters big.</li>
+        </ol>
+        <div class="ex-cue cue-mobility">💡 Sounds silly, works extremely well. The alphabet forces full ankle range in all directions. Often neglected and very important as mileage builds.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=ankle+mobility+circles+alphabet+exercise" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Move 3 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">03</span>
+          <span class="ex-name">Kneeling Hip Flexor Stretch</span>
+        </div>
+        <span class="ex-sets">45 sec each side</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Kneel on one knee (use a folded towel for cushion). Other foot forward, knee bent at 90°.</li>
+          <li><span class="ex-step-num">2.</span>Squeeze the glute of your back leg and gently push your hips forward until you feel a stretch in the front of the back hip.</li>
+          <li><span class="ex-step-num">3.</span>Hold the stretch. Don't lean forward from the waist — stay tall and upright. Breathe through it.</li>
+        </ol>
+        <div class="ex-cue cue-mobility">💡 This will be very tight at first after years of desk work. That's expected and fine. The hip flexor tightness is directly linked to the lower back fatigue many runners feel. Be patient — it releases by week 4.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=kneeling+hip+flexor+stretch+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Move 4 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">04</span>
+          <span class="ex-name">World's Greatest Stretch</span>
+        </div>
+        <span class="ex-sets">5 reps each side</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Step your right foot forward into a deep lunge. Left knee stays off the ground.</li>
+          <li><span class="ex-step-num">2.</span>Place your right hand on the floor beside your right foot. Rotate your left arm up toward the ceiling, following it with your eyes.</li>
+          <li><span class="ex-step-num">3.</span>Hold 2 seconds at the top, return hand to floor, then shift hips back to stretch the hamstring. That's one rep. Switch sides.</li>
+        </ol>
+        <div class="ex-cue cue-mobility">💡 <strong>The single best mobility exercise for runners.</strong> Hits hip flexors, thoracic rotation, hamstrings, and ankle dorsiflexion in one movement. Watch it on YouTube once to lock in the pattern — it's worth 30 seconds of your time.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=world%27s+greatest+stretch+tutorial" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube ← Watch this one first
+        </a>
+      </div>
+    </div>
+
+    <!-- Move 5 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">05</span>
+          <span class="ex-name">Pigeon Pose</span>
+        </div>
+        <span class="ex-sets">60 sec each side</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>From a push-up position, bring your right knee forward and place it behind your right wrist, shin angled across your body. Left leg extends straight back.</li>
+          <li><span class="ex-step-num">2.</span>Lower your hips toward the floor. If your hip doesn't reach the floor, place a folded blanket under it for support.</li>
+          <li><span class="ex-step-num">3.</span>Hold for 60 seconds per side. Breathe slowly and let the tension release — don't fight it.</li>
+        </ol>
+        <div class="ex-cue cue-mobility">💡 Deep glute and hip external rotator stretch — the deepest in this routine. Protects your IT band and lower back. The tighter you are here, the more you need it. 60 seconds is not negotiable.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=pigeon+pose+yoga+tutorial+beginners" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Move 6 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">06</span>
+          <span class="ex-name">Calf + Achilles Stretch</span>
+        </div>
+        <span class="ex-sets">45 sec each · straight + bent knee</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span><strong>Straight-knee version:</strong> Step one foot back, heel flat on the floor. Lean hands into a wall. You should feel the stretch in the belly of the calf. Hold 45 sec.</li>
+          <li><span class="ex-step-num">2.</span><strong>Bent-knee version:</strong> Same position, but bend the back knee slightly. This shifts the stretch lower to the Achilles and soleus. Hold 45 sec.</li>
+          <li><span class="ex-step-num">3.</span>Switch legs and repeat both.</li>
+        </ol>
+        <div class="ex-cue cue-mobility">💡 Both versions are essential — they target different muscles. The bent-knee stretch for the Achilles is the one most runners skip and most need. Do both, every time.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=calf+achilles+stretch+wall+bent+knee" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Move 7 -->
+    <div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <span class="ex-number">07</span>
+          <span class="ex-name">Thoracic Rotation</span>
+        </div>
+        <span class="ex-sets">10 reps each side</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how-title">How to do it</div>
+        <ol class="ex-steps">
+          <li><span class="ex-step-num">1.</span>Lie on your side with knees stacked and bent at 90°. Bottom arm extended straight, top arm on top of it.</li>
+          <li><span class="ex-step-num">2.</span>Keeping your knees stacked (don't let them rotate), slowly rotate your top arm open to the floor behind you, following your hand with your eyes.</li>
+          <li><span class="ex-step-num">3.</span>Hold 2 seconds at the fully open position, then return. Do 10 reps, then switch sides.</li>
+        </ol>
+        <div class="ex-cue cue-mobility">💡 Opens the upper back and ribcage — directly improves running posture, breathing efficiency, and shoulder blade mobility. Tall runners often have poor thoracic rotation. This will feel stiff at first and then wonderful by week 3.</div>
+        <a class="ex-video-link" href="https://www.youtube.com/results?search_query=thoracic+rotation+stretch+side+lying" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Watch demo on YouTube
+        </a>
+      </div>
+    </div>
+
+    <div class="tip-card" style="margin: 0 0 1.5rem;">
+      <strong>Coach note:</strong> This routine will feel like work for the first 2 weeks. By week 4 it will feel good. By week 8 you'll notice your foot twinges have largely disappeared and your posture has changed. This is the most underrated part of the whole program — most runners skip it and most injuries come from skipping it.
+    </div>
+  </div>
+
+  <!-- ===================== PRE/POST RUN STRETCH VIEW ===================== -->
+  <div class="view" id="view-stretch">
+    <div class="guide-hero">
+      <div class="guide-hero-eyebrow">Workout guide</div>
+      <div class="guide-hero-title">🏃 Pre/Post-Run Routine</div>
+      <div class="guide-hero-sub">Prep before you run, recover after — built to prevent niggles as mileage climbs</div>
+      <div class="guide-hero-meta">
+        <span class="guide-meta-pill">⏱ 5 min before · 8 min after</span>
+        <span class="guide-meta-pill">📍 No equipment needed</span>
+        <span class="guide-meta-pill">🛡 Injury prevention focus</span>
+      </div>
+    </div>
+
+    <div class="guide-rounds-bar">
+      <strong>The rule:</strong>&nbsp; dynamic movement before you run, static stretching after. Doing it backwards (static stretching cold muscles before running) doesn't help and can mildly increase injury risk.
+    </div>
+
+    <div class="guide-section-tabs">
+      <button class="guide-section-tab active" onclick="showStretchSection('pre')">Before your run</button>
+      <button class="guide-section-tab" onclick="showStretchSection('post')">After your run</button>
+    </div>
+
+    <!-- ============ PRE-RUN SECTION ============ -->
+    <div class="guide-section active" id="stretch-pre">
+
+      <div class="tip-card" style="margin: 0 0 1.25rem; border-left-color: var(--run);">
+        <strong>Why dynamic, not static:</strong> Cold static stretching (holding a stretch before you've moved) can temporarily reduce muscle power output. Dynamic movement raises tissue temperature, increases blood flow, and rehearses the running motion. Do this right after your warmup walk, right before you pick up the pace.
+      </div>
+
+      <!-- Pre 1 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">01</span>
+            <span class="ex-name">Leg Swings (front to back)</span>
+          </div>
+          <span class="ex-sets">10 each leg</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Stand next to a wall or tree for light balance support.</li>
+            <li><span class="ex-step-num">2.</span>Swing one leg forward and backward in a controlled pendulum motion, keeping your torso upright.</li>
+            <li><span class="ex-step-num">3.</span>Let the range of motion grow naturally over the 10 reps — don't force it on rep 1.</li>
+          </ol>
+          <div class="ex-cue cue-run">💡 Loosens hip flexors and hamstrings dynamically — exactly the muscles that do the most work in your stride.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=leg+swings+dynamic+warm+up+runners" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Pre 2 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">02</span>
+            <span class="ex-name">Leg Swings (side to side)</span>
+          </div>
+          <span class="ex-sets">10 each leg</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Facing the wall this time, swing one leg side to side across your body, like a pendulum.</li>
+            <li><span class="ex-step-num">2.</span>Keep your standing leg slightly bent and your core engaged for balance.</li>
+            <li><span class="ex-step-num">3.</span>Controlled motion — this isn't about speed or maximum range.</li>
+          </ol>
+          <div class="ex-cue cue-run">💡 Targets adductors and abductors (inner/outer thigh) and glute medius — small stabilizer muscles that quietly prevent knee and hip pain as mileage builds.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=lateral+leg+swings+warm+up" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Pre 3 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">03</span>
+            <span class="ex-name">Walking Knee Hugs</span>
+          </div>
+          <span class="ex-sets">8 each leg, walking</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Walking forward, lift one knee up toward your chest and hug it briefly with both arms.</li>
+            <li><span class="ex-step-num">2.</span>Release, step forward, and repeat with the other leg as you continue walking.</li>
+            <li><span class="ex-step-num">3.</span>Keep your standing leg's knee soft, not locked straight, during the hug.</li>
+          </ol>
+          <div class="ex-cue cue-run">💡 Dynamic glute and hip flexor stretch combined with a balance challenge — mimics the high-knee phase of your running stride.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=walking+knee+hugs+dynamic+warm+up" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Pre 4 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">04</span>
+            <span class="ex-name">Walking Lunges with Twist</span>
+          </div>
+          <span class="ex-sets">6 each leg, walking</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Step forward into a lunge, back knee hovering just above the floor.</li>
+            <li><span class="ex-step-num">2.</span>From the bottom of the lunge, rotate your torso toward your front leg, then back to center.</li>
+            <li><span class="ex-step-num">3.</span>Push through your front foot to step forward into the next lunge on the other side. Continue walking forward.</li>
+          </ol>
+          <div class="ex-cue cue-run">💡 Combines a hip flexor stretch with thoracic rotation — covers two problem areas for tall, desk-bound runners in one fluid movement.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=walking+lunge+with+twist+warm+up" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Pre 5 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">05</span>
+            <span class="ex-name">High Knees</span>
+          </div>
+          <span class="ex-sets">20 sec</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Jog in place or move slowly forward, driving your knees up toward hip height.</li>
+            <li><span class="ex-step-num">2.</span>Stay light on your feet — quick ground contact, not a hard stomp.</li>
+            <li><span class="ex-step-num">3.</span>Pump your arms naturally as if you were actually running.</li>
+          </ol>
+          <div class="ex-cue cue-run">💡 Raises heart rate and core temperature right before you start — bridges the gap between walking warmup and actual running pace.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=high+knees+warm+up+exercise" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Pre 6 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">06</span>
+            <span class="ex-name">Butt Kicks</span>
+          </div>
+          <span class="ex-sets">20 sec</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Jog in place or move slowly forward, kicking your heels back to touch (or come close to) your glutes.</li>
+            <li><span class="ex-step-num">2.</span>Keep your torso upright and stay light on your feet.</li>
+            <li><span class="ex-step-num">3.</span>This is your last dynamic move — right after this, head into your easy warmup pace.</li>
+          </ol>
+          <div class="ex-cue cue-run">💡 Dynamically loosens the quads through full range of motion. Pairs naturally with high knees as the final activation before you run.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=butt+kicks+warm+up+exercise" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <div class="tip-card" style="margin: 0 0 1.5rem;">
+        <strong>Coach note:</strong> 5 minutes, every single run, no exceptions — even on easy days when you're tempted to skip straight out the door. This is the routine most likely to prevent the small niggles (shin splints, IT band irritation, calf tightness) that derail people right around the mileage increases in Phase 2 and 3.
+      </div>
+    </div>
+
+    <!-- ============ POST-RUN SECTION ============ -->
+    <div class="guide-section" id="stretch-post">
+
+      <div class="tip-card" style="margin: 0 0 1.25rem; border-left-color: var(--mobility);">
+        <strong>Why static, not dynamic:</strong> After running, your muscles are warm and pliable — the ideal state for static stretching to actually improve range of motion and aid recovery. Do this within 10–15 minutes of finishing, before you've cooled down and showered.
+      </div>
+
+      <!-- Post 1 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">01</span>
+            <span class="ex-name">Standing Quad Stretch</span>
+          </div>
+          <span class="ex-sets">30 sec each leg</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Stand on one leg (hold a wall for balance if needed). Grab your other ankle behind you.</li>
+            <li><span class="ex-step-num">2.</span>Gently pull your heel toward your glute, keeping your knees close together and hips pushed slightly forward.</li>
+            <li><span class="ex-step-num">3.</span>Hold without bouncing. Breathe normally — don't hold your breath against the stretch.</li>
+          </ol>
+          <div class="ex-cue cue-mobility">💡 Quads absorb a huge amount of impact on long runs and downhills. This is one of the first muscles to tighten up post-run.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=standing+quad+stretch+after+running" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Post 2 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">02</span>
+            <span class="ex-name">Standing Hamstring Stretch</span>
+          </div>
+          <span class="ex-sets">30 sec each leg</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Place one heel on a low step, curb, or stair, leg straight (or place foot flat on the ground, slight forward stride).</li>
+            <li><span class="ex-step-num">2.</span>Keeping your back flat, hinge forward from your hips until you feel a stretch behind the thigh.</li>
+            <li><span class="ex-step-num">3.</span>Hold. Don't round your lower back to go deeper — that loses the hamstring stretch and stresses your spine instead.</li>
+          </ol>
+          <div class="ex-cue cue-mobility">💡 Tight hamstrings are one of the most common contributors to lower back tightness in runners. Hinge from the hip, not the spine.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=standing+hamstring+stretch+proper+form" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Post 3 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">03</span>
+            <span class="ex-name">Standing IT Band / Glute Stretch</span>
+          </div>
+          <span class="ex-sets">30 sec each side</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Cross one leg behind the other (like crossing your ankles while standing).</li>
+            <li><span class="ex-step-num">2.</span>Keeping both legs mostly straight, hinge at the hips and reach toward your toes, letting your hip drift to one side.</li>
+            <li><span class="ex-step-num">3.</span>You should feel the stretch along the outside of your hip/thigh on the back leg. Hold, then switch.</li>
+          </ol>
+          <div class="ex-cue cue-mobility">💡 The IT band itself doesn't stretch much, but this targets the glute medius and tensor fasciae latae that feed into it — the actual source of most "IT band syndrome" in new runners.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=standing+IT+band+stretch+runners" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Post 4 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">04</span>
+            <span class="ex-name">Calf Stretch (straight + bent knee)</span>
+          </div>
+          <span class="ex-sets">30 sec each, each leg</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Hands on a wall, step one foot back with the heel flat on the floor and leg straight. Lean forward gently.</li>
+            <li><span class="ex-step-num">2.</span>Hold 30 sec, feeling the stretch in the upper calf (gastrocnemius).</li>
+            <li><span class="ex-step-num">3.</span>Bend the back knee slightly, keeping the heel down, to shift the stretch lower into the Achilles/soleus. Hold 30 sec, then switch legs.</li>
+          </ol>
+          <div class="ex-cue cue-mobility">💡 Same move as in your mobility routine — it's worth repeating post-run specifically because calves and Achilles take on more load as your mileage and pace increase. Don't skip the bent-knee version.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=calf+stretch+wall+straight+bent+knee" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Post 5 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">05</span>
+            <span class="ex-name">Figure-4 Hip Stretch (lying down)</span>
+          </div>
+          <span class="ex-sets">30–45 sec each side</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Lie on your back, knees bent, feet flat on the floor.</li>
+            <li><span class="ex-step-num">2.</span>Cross your right ankle over your left knee, shin forming a "4" shape.</li>
+            <li><span class="ex-step-num">3.</span>Reach through and gently pull your left thigh toward your chest until you feel a stretch in the right glute/hip. Hold, then switch.</li>
+          </ol>
+          <div class="ex-cue cue-mobility">💡 A gentler, lying-down alternative to pigeon pose — good for a quick post-run floor stretch when you're short on time or it's a lighter mileage day.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=figure+4+stretch+glute+lying+down" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <!-- Post 6 -->
+      <div class="exercise-card">
+        <div class="ex-header">
+          <div class="ex-header-left">
+            <span class="ex-number">06</span>
+            <span class="ex-name">Child's Pose (low back release)</span>
+          </div>
+          <span class="ex-sets">45–60 sec</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-how-title">How to do it</div>
+          <ol class="ex-steps">
+            <li><span class="ex-step-num">1.</span>Kneel on the floor, big toes touching, knees spread wide.</li>
+            <li><span class="ex-step-num">2.</span>Sit your hips back toward your heels and walk your hands forward, lowering your chest toward the floor.</li>
+            <li><span class="ex-step-num">3.</span>Let your forehead rest on the floor or a cushion. Breathe deeply into your lower back for the full hold.</li>
+          </ol>
+          <div class="ex-cue cue-mobility">💡 A passive decompression for the lower back after the repetitive impact of running. Great way to end the stretch sequence and downshift before you go about your day.</div>
+          <a class="ex-video-link" href="https://www.youtube.com/results?search_query=childs+pose+stretch+lower+back+tutorial" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch demo on YouTube
+          </a>
+        </div>
+      </div>
+
+      <div class="tip-card" style="margin: 0 0 1.5rem;">
+        <strong>Coach note:</strong> You're not chasing pain right now, which is exactly the right time to build this habit — prevention is far easier than rehab. On long run days, this sequence plus your full mobility routine (see the Mobility tab) is the one-two punch that keeps you healthy as Phase 2 and 3 mileage climbs.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────────────────────────
+
+  // Program start = June 10, 2026 (launch week)
+  // Phase 1 = June 16
+  // Phase 2 = July 28
+  // Phase 3 = September 22
+  const PROGRAM_START = new Date(2026, 5, 10); // Jun 10 2026
+  const PHASE1_START  = new Date(2026, 5, 16); // Jun 16 2026
+  const PHASE2_START  = new Date(2026, 6, 28); // Jul 28 2026
+  const PHASE3_START  = new Date(2026, 8, 22); // Sep 22 2026
+
+  function getPhase(d) {
+    if (d < PHASE1_START) return 'launch';
+    if (d < PHASE2_START) return 'phase1';
+    if (d < PHASE3_START) return 'phase2';
+    return 'phase3';
+  }
+
+  // Launch week schedule: Wed Jun 10 through Tue Jun 16
+  // Keyed by day-of-week offset from PROGRAM_START
+  const LAUNCH_WEEK = {
+    3: 'fast',   // Wed Jun 10
+    4: 'run',    // Thu Jun 11
+    5: 'rest',   // Fri Jun 12
+    6: 'strength-a', // Sat Jun 13
+    0: 'mobility',   // Sun Jun 14
+    1: 'rest',   // Mon Jun 15 (this is the gap day before full Phase 1)
+    2: 'rest',
+  };
+
+  // Phase 1–3 weekly template (0=Sun,1=Mon,...,6=Sat)
+  const PHASE1_WEEK = {
+    0: 'rest', 1: 'run', 2: 'strength-a', 3: 'fast', 4: 'run', 5: 'strength-b', 6: 'long-run'
+  };
+  const PHASE2_WEEK = {
+    0: 'mobility', 1: 'run', 2: 'strength-a', 3: 'fast', 4: 'tempo', 5: 'strength-b', 6: 'long-run'
+  };
+  const PHASE3_WEEK = {
+    0: 'mobility', 1: 'run', 2: 'strength-a', 3: 'fast', 4: 'tempo', 5: 'strength-b', 6: 'trail-or-long'
+  };
+
+  function getWorkoutType(d) {
+    const phase = getPhase(d);
+    const dow = d.getDay();
+    if (phase === 'launch') return LAUNCH_WEEK[dow] || 'rest';
+    if (phase === 'phase1') return PHASE1_WEEK[dow];
+    if (phase === 'phase2') return PHASE2_WEEK[dow];
+    return PHASE3_WEEK[dow];
+  }
+
+  // ── WORKOUT CONTENT ────────────────────────────────────────────────────────
+
+  const WORKOUTS = {
+    'fast': {
+      type: 'fast',
+      icon: '✦',
+      title: 'Fast day — rest & recover',
+      sub: 'No workout today. Your fast runs from last night\'s dinner until ~5:30pm tonight.',
+      isRest: true,
+      restNote: 'Use today well: hydrate, sleep, and let your body consolidate any recent work. Breaking your fast with a protein-forward meal tonight sets you up for tomorrow\'s run.'
+    },
+    'rest': {
+      type: 'rest',
+      icon: '◯',
+      title: 'Rest day',
+      sub: 'Active recovery — walk, stretch lightly, or do nothing at all.',
+      isRest: true,
+      restNote: 'Rest days are where adaptation happens. Your muscles repair and grow stronger on days like today, not during the workouts themselves.'
+    },
+    'run': {
+      type: 'run',
+      label: 'Run',
+      title: 'Easy run',
+      sub: '25–40 min · Conversational pace throughout',
+      badge: 'badge-run',
+      treadmillOK: true,
+      steps: [
+        { name: 'Walk warmup', detail: '5 min at easy pace — outside or treadmill 3.0–3.5mph. Don\'t skip this.', tag: null },
+        { name: 'Easy jog', detail: 'Run at a pace where you can speak full sentences. Rolling hills: slow down on inclines, recover on flats. Treadmill: 4.5–5.5mph, incline 1–1.5%. Phase 1: aim for 2–2.5 miles. Phase 2: 2.5–3 miles.', tag: 'easy' },
+        { name: 'Walk cooldown', detail: '5 min easy walk. Don\'t just stop — let your heart rate come down gradually.', tag: null },
+        { name: 'Post-run stretches', detail: 'Calf stretch 45 sec each side + hip flexor stretch 45 sec each side. Minimum every run day.', tag: null },
+      ],
+      tip: 'If it feels embarrassingly slow, you\'re doing it right. Your swimming instincts will push you to go harder — resist them on easy days. Aerobic base is built at low intensity.'
+    },
+    'tempo': {
+      type: 'run',
+      label: 'Tempo run',
+      title: 'Tempo run',
+      sub: '35–40 min · Comfortably hard effort',
+      badge: 'badge-run',
+      treadmillOK: false,
+      steps: [
+        { name: 'Easy warmup', detail: '5 min easy jog or walk. Loosen up completely before picking up the pace.', tag: null },
+        { name: 'Tempo effort', detail: 'Run at an effort where you can say 3–4 words but not full sentences. Phase 2: 15–20 min at this effort. Phase 3: 2–3 miles at tempo pace.', tag: 'moderate' },
+        { name: 'Easy cooldown', detail: '5 min easy jog, then 3 min walk. Let your body come all the way back down.', tag: null },
+        { name: 'Strides (Phase 2+)', detail: 'Optional: 4–6 × 20-second accelerations at 80% after cooldown, full recovery walk between each. Takes 5 extra minutes, big return on investment.', tag: null },
+      ],
+      tip: 'Outdoor tempo on your rolling hills is dramatically better than treadmill for this. The hills force you to manage effort — which is exactly what tempo training is building.'
+    },
+    'long-run': {
+      type: 'combo',
+      label: 'Long run + stretch',
+      title: 'Long run + full mobility',
+      sub: '45–60 min total · Slower than easy pace',
+      badge: 'badge-combo',
+      treadmillOK: false,
+      steps: [
+        { name: 'Easy warmup walk', detail: '5 min. Especially important on longer runs — cold muscles on a longer effort is an injury recipe.', tag: null },
+        { name: 'Long run', detail: 'Slower than your easy run pace. Goal is time on feet. Phase 1: 2.5–3.5 miles. Phase 2: 4–5 miles. Phase 3: 5–7 miles. Walk when needed — no shame.', tag: 'easy' },
+        { name: 'Walk cooldown', detail: '5 min. Non-negotiable after a long effort.', tag: null },
+        { name: 'Full mobility session', detail: '15 min: hip flexors (45 sec each), pigeon pose (60 sec each), calf + Achilles (45 sec each), world\'s greatest stretch (5 reps each side), thoracic rotation (10 reps each side).', tag: null },
+        { name: 'Foam roll', detail: 'IT band, quads, calves — 60 sec each side. This is when rolling matters most.', tag: null },
+      ],
+      tip: 'Saturday\'s long run is your most important workout of the week. The post-run stretch is not optional — it\'s half the session. Set aside the full time.'
+    },
+    'trail-or-long': {
+      type: 'combo',
+      label: 'Trail / Long run',
+      title: 'Trail run or long run',
+      sub: '45–55 min · Phase 3: alternate trail 2x/month',
+      badge: 'badge-combo',
+      treadmillOK: false,
+      steps: [
+        { name: 'Warmup', detail: '5 min easy walk or jog.', tag: null },
+        { name: 'Run', detail: 'On trail weeks: find the trail near your neighborhood. Slower pace expected and correct on trails — effort matters, not pace. Trail running builds foot strength and ankle stability that road running can\'t replicate.', tag: 'moderate' },
+        { name: 'Cooldown', detail: '5 min walk.', tag: null },
+        { name: 'Full mobility session', detail: '15 min as per long run protocol. Especially important after trail running — your stabilizer muscles will be more fatigued than usual.', tag: null },
+      ],
+      tip: 'Trail running is where many people fall in love with running. The terrain demands your full attention and the scenery makes the time fly. Bring it in from Phase 3 and let it become a highlight of your week.'
+    },
+    'strength-a': {
+      type: 'strength',
+      label: 'Strength A',
+      title: 'Strength A — lower body & core',
+      sub: '25–30 min · 3 rounds (2 rounds in launch week)',
+      badge: 'badge-strength',
+      steps: [
+        { name: 'Bodyweight squat', detail: '15 reps (12 in launch week), 2 sec down. Phase 3: progress to single-leg squat.', tag: null },
+        { name: 'Reverse lunge', detail: '10 each leg (8 in launch week). Builds glute strength critical for running economy and knee health.', tag: null },
+        { name: 'Glute bridge', detail: '15 reps, 2-sec hold at top. Phase 2: progress to single-leg. Keep hips level.', tag: null },
+        { name: 'Dead bug', detail: '10 each side (8 in launch week). Slow and controlled breathing. Back flat to floor throughout — this is the whole point.', tag: null },
+        { name: 'Plank', detail: '30 sec, build to 60 sec. Phase 2: add shoulder taps. Stop before form breaks — a 20-sec perfect plank beats a 60-sec sagging one.', tag: null },
+        { name: 'Calf raise', detail: '20 reps slow. Do barefoot on a hard floor. Directly strengthens the foot and ankle — addresses your foot twinges.', tag: null },
+      ],
+      tip: 'Minimal rest between exercises (30–45 sec), full rest between rounds (90 sec). In Phase 2, add a resistance band above your knees for squats and bridges to activate glutes more effectively.'
+    },
+    'strength-b': {
+      type: 'strength',
+      label: 'Strength B',
+      title: 'Strength B — upper body & full body',
+      sub: '25–30 min · 3 rounds',
+      badge: 'badge-strength',
+      steps: [
+        { name: 'Push-up', detail: '10–15 reps. Start incline (hands on counter) if needed. Phase 3: progress to archer push-ups. Your swimming background means your push mechanics will be strong quickly.', tag: null },
+        { name: 'Pull-up or inverted row', detail: '5–8 reps. Use the pull-up bar. Start with negatives (jump to top, lower slowly 5 sec) if full pull-ups are hard. This rebuilds shoulder function from your swimming days.', tag: null },
+        { name: 'Pike push-up', detail: '8 reps. Hips high, lower head toward floor between hands. Shoulder stability — directly relevant to your rotator cuff history.', tag: null },
+        { name: 'Superman hold', detail: '10 reps, 2-sec hold at top. Strengthens the posterior chain and lower back — critical for desk workers.', tag: null },
+        { name: 'Dip (sturdy chair)', detail: '10 reps. Hands on chair seat behind you, lower until elbows hit 90°. Triceps and shoulder stability.', tag: null },
+        { name: 'Mountain climbers', detail: '20 reps (10 each side). Drive knees toward chest in a controlled rhythm. Cardio-strength bridge and core stability.', tag: null },
+      ],
+      tip: 'Strength B complements your running — upper body stability makes you a more efficient runner. The pull-up work will come back fast given your swimming background. Don\'t be surprised if you\'re stronger than you think.'
+    },
+    'mobility': {
+      type: 'mobility',
+      label: 'Mobility',
+      title: 'Mobility & stretching',
+      sub: '15–20 min · Do this barefoot when possible',
+      badge: 'badge-mobility',
+      steps: [
+        { name: 'Toe curls & arch raises', detail: '2 × 15. Barefoot on a hard floor. Pick up a small towel with your toes if you want to progress this. Directly strengthens the intrinsic foot muscles causing your twinges.', tag: null },
+        { name: 'Ankle circles & alphabet', detail: '30 sec each foot. Trace the alphabet with your big toe. Daily ankle joint mobility — often neglected and very important.', tag: null },
+        { name: 'Hip flexor stretch (kneeling)', detail: '45 sec each side. Back knee on floor, front foot forward, push hips forward gently. Will be very tight at first — that\'s expected from years of desk work.', tag: null },
+        { name: 'World\'s greatest stretch', detail: '5 reps each side. Step forward into lunge, plant same-side hand, rotate top arm to ceiling. Single best mobility movement for runners. Look it up on YouTube once.', tag: null },
+        { name: 'Pigeon pose', detail: '60 sec each side. Glute and hip flexibility. Protects your IT band and lower back. Breathe through the tightness.', tag: null },
+        { name: 'Calf + Achilles stretch', detail: '45 sec each (straight knee, then bent knee — both matter). Essential for foot health and injury prevention as mileage builds.', tag: null },
+        { name: 'Thoracic rotation', detail: '10 reps each side. Lie on side, knees stacked, rotate top arm open to the floor behind you. Opens upper back for better running posture.', tag: null },
+      ],
+      tip: 'This routine will feel like work for the first 2 weeks. By week 4, it will feel good. By week 8, you\'ll notice that your foot twinges have largely disappeared and your posture has changed. This is the most underrated part of the whole program.'
+    },
+  };
+
+  // ── RENDER ────────────────────────────────────────────────────────────────
+
+  function typeClass(type) {
+    if (!type) return 'rest';
+    if (type.includes('run') || type === 'tempo') return 'run';
+    if (type.includes('strength')) return 'strength';
+    if (type === 'mobility') return 'mobility';
+    if (type === 'long-run' || type === 'trail-or-long') return 'combo';
+    if (type === 'fast') return 'fast';
+    return 'rest';
+  }
+
+  function dotClass(type) { return 'dot-' + typeClass(type); }
+
+  function renderWeekStrip(anchorDate) {
+    // Show 7 days starting from Sunday of the current week
+    const sunday = new Date(anchorDate);
+    sunday.setDate(anchorDate.getDate() - anchorDate.getDay());
+
+    let html = '<div class="week-strip">';
+    const days = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const today = anchorDate;
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(sunday);
+      d.setDate(sunday.getDate() + i);
+      const wt = getWorkoutType(d);
+      const tc = typeClass(wt);
+      const isToday = d.toDateString() === today.toDateString();
+      const dateNum = d.getDate();
+
+      html += `<div class="strip-day is-${tc}${isToday ? ' active-day' : ''}" onclick="selectDay(${d.getTime()})">
+        <div class="sday-name">${days[d.getDay()]}</div>
+        <div class="sday-date">${dateNum}</div>
+        <div class="sday-dot ${dotClass(wt)}"></div>
+      </div>`;
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderWorkout(wt, d) {
+    const w = WORKOUTS[wt] || WORKOUTS['rest'];
+    const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+    if (w.isRest) {
+      return `
+        <div class="today-hero">
+          <div class="hero-eyebrow">${dateStr}</div>
+          <div class="hero-title">${w.title}</div>
+          <div class="hero-sub">${w.sub}</div>
+          <span class="hero-badge ${w.type === 'fast' ? 'badge-fast' : 'badge-rest'}">${w.type === 'fast' ? 'Fast day' : 'Rest day'}</span>
+        </div>
+        <div class="rest-card">
+          <div class="rest-icon">${w.icon}</div>
+          <div class="rest-title">${w.type === 'fast' ? 'Rest & fast' : 'Rest day'}</div>
+          <div class="rest-sub">${w.restNote}</div>
+        </div>`;
+    }
+
+    const tc = typeClass(wt);
+    let stepsHtml = w.steps.map((s, i) => `
+      <li class="step-item">
+        <span class="step-num">0${i+1}</span>
+        <div class="step-content">
+          <div class="step-name">${s.name}${s.tag ? `<span class="step-tag tag-${s.tag}">${s.tag}</span>` : ''}</div>
+          <div class="step-detail">${s.detail}</div>
+        </div>
+      </li>`).join('');
+
+    const treadmill = w.treadmillOK
+      ? '<span class="hero-badge badge-combo">Treadmill OK</span>'
+      : (wt === 'tempo' || wt === 'trail-or-long' ? '<span class="hero-badge badge-rest">Outdoors preferred</span>' : '');
+
+    return `
+      <div class="today-hero">
+        <div class="hero-eyebrow">${dateStr}</div>
+        <div class="hero-title">${w.title}</div>
+        <div class="hero-sub">${w.sub}</div>
+        <span class="hero-badge badge-${tc}">${w.label || w.title}</span>
+        ${treadmill}
+      </div>
+      <div class="workout-section">
+        <div class="workout-section-header">
+          <div class="ws-title">Workout steps</div>
+          <div class="ws-time">${w.sub.split('·')[0].trim()}</div>
+        </div>
+        <ul class="step-list">${stepsHtml}</ul>
+      </div>
+      ${w.tip ? `<div class="tip-card"><strong>Coach note:</strong> ${w.tip}</div>` : ''}`;
+  }
+
+  let selectedDate = new Date();
+
+  const PHASE_META = [
+    { key: 'launch', name: 'Launch week', short: 'Launch', dates: 'Jun 10–15, 2026', start: new Date(2026,5,10), end: new Date(2026,5,15) },
+    { key: 'phase1', name: 'Phase 1 — Foundation', short: 'Phase 1', dates: 'Jun 16 – Jul 27', start: new Date(2026,5,16), end: new Date(2026,6,27) },
+    { key: 'phase2', name: 'Phase 2 — Build', short: 'Phase 2', dates: 'Jul 28 – Sep 21', start: new Date(2026,6,28), end: new Date(2026,8,21) },
+    { key: 'phase3', name: 'Phase 3 — Maintenance', short: 'Phase 3', dates: 'Sep 22 – Dec 7', start: new Date(2026,8,22), end: new Date(2026,11,7) },
+  ];
+
+  function renderPhasePill(phase) {
+    const meta = PHASE_META.find(p => p.key === phase) || PHASE_META[1];
+    return `<div class="phase-pill"><div class="phase-dot"></div><span>${meta.name}</span></div>`;
+  }
+
+  function renderPhaseTimeline(activePhase) {
+    const today = new Date();
+    const totalDays = (PHASE_META[3].end - PHASE_META[0].start) / 86400000;
+    const elapsed = Math.max(0, Math.min(totalDays, (today - PHASE_META[0].start) / 86400000));
+    const pct = Math.round((elapsed / totalDays) * 100);
+
+    const phases = PHASE_META.map(p => {
+      const isDone = today > p.end;
+      const isActive = p.key === activePhase;
+      const isFuture = today < p.start;
+      let cls = 'tl-phase';
+      if (isActive) cls += ' tl-active';
+      else if (isDone) cls += ' tl-done';
+      else if (isFuture) cls += ' tl-future';
+      const tick = isDone ? ' ✓' : (isActive ? ' ←' : '');
+      return `<div class="${cls}">
+        <div class="tl-label">${p.short}${tick}</div>
+        <div class="tl-name">${p.name.replace(/Phase \d — /, '').replace('Launch week','Launch')}</div>
+        <div class="tl-dates">${p.dates}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="phase-timeline">
+      <div class="timeline-header">
+        <div class="timeline-title">Your 24-week program</div>
+        <div class="timeline-sub">Week ${Math.max(1, Math.ceil(elapsed/7))} of 24</div>
+      </div>
+      <div class="timeline-track">${phases}</div>
+      <div class="tl-progress-bar"><div class="tl-progress-fill" style="width:${pct}%"></div></div>
+      <div class="tl-progress-label"><span>Jun 10</span><span>${pct}% complete</span><span>Dec 7</span></div>
+    </div>`;
+  }
+
+  function renderToday(d) {
+    const wt = getWorkoutType(d);
+    const phase = getPhase(d);
+    document.getElementById('today-content').innerHTML =
+      renderPhasePill(phase) +
+      renderWeekStrip(d) +
+      renderWorkout(wt, d);
+  }
+
+  function renderPlanView() {
+    const phase = getPhase(new Date());
+    document.getElementById('plan-header').innerHTML = renderPhaseTimeline(phase);
+  }
+
+  function selectDay(timestamp) {
+    selectedDate = new Date(timestamp);
+    renderToday(selectedDate);
+  }
+
+  function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    event.target.classList.add('active');
+    if (id === 'today') renderToday(selectedDate);
+    if (id === 'plan') renderPlanView();
+  }
+
+  function showStretchSection(section) {
+    document.querySelectorAll('#view-stretch .guide-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#view-stretch .guide-section-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('stretch-' + section).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Init
+  renderToday(selectedDate);
+</script>
+
+<script>
+  // Register service worker for offline support (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.log('Service worker registration failed:', err);
+      });
+    });
+  }
+</script>
+</body>
+</html>
