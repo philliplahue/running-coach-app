@@ -1,6 +1,6 @@
 // Service worker for offline support.
 // Bump CACHE_NAME whenever index.html changes so updated content is served.
-const CACHE_NAME = 'run-coach-v1';
+const CACHE_NAME = 'run-coach-v2';
 const ASSETS = [
   '/',
   '/index.html',
