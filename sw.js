@@ -1,13 +1,13 @@
 // Service worker for offline support.
 // Bump CACHE_NAME whenever index.html changes so updated content is served.
-const CACHE_NAME = 'run-coach-v3';
+const CACHE_NAME = 'run-coach-v4';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-192.png?v=2',
-  '/icon-512.png?v=2',
-  '/apple-touch-icon.png?v=2'
+  '/icon-192.png?v=3',
+  '/icon-512.png?v=3',
+  '/apple-touch-icon.png?v=3'
 ];
 
 self.addEventListener('install', (event) => {
